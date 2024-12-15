@@ -1,0 +1,5 @@
+<form (ngSubmit)="jugar(respuesta.value)" #form="ngForm">
+    <label for="respuesta">Nombre de la seña</label>
+    <input type="text" id="respuesta" [disabled]="salaServices.estado() === 'ESPERANDO_JUGADOR'" name="respuesta" #respuesta required ngModel>
+    <button [disabled]="form.invalid">Responder</button>
+</form>
