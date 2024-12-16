@@ -13,6 +13,6 @@ import { FormsModule } from '@angular/forms';
 export class TableroComponent {
   salaServices = inject(SalaService);
   jugar(respuesta: string){
-    this.salaServices.jugar(respuesta)
+    this.salaServices.recibirRespuesta(respuesta)
   }
 }

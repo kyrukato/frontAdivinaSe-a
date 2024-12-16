@@ -21,12 +21,14 @@ export class SalaService {
 
   jugador1 = signal<Jugador>({name:''});
   jugador2 = signal<Jugador>({name:''});
-  imageURL = signal<string>('');
+  imageURL = signal<string[]>([]);
   estado = signal<EstadoJuego> ("ESPERANDO_JUGADOR");
-  name = signal<string>('');
+  name = signal<string[]>([]);
   respuesta = signal<statusRespuesta>('ESPERANDO_RESPUESTA');
   numeroJugador = signal<1|2|undefined>(undefined);
   id = signal<number|undefined>(undefined);
+  conteo = signal<number>(0);
+  respuestasJugador: string[] = [];
 
   
   desestructurarSala(salaBack:SalaBackend){
@@ -37,6 +39,7 @@ export class SalaService {
     this.estado.set(salaBack.status);
     this.imageURL.set(salaBack.imageURL);
     this.name.set(salaBack.signal);
+    this.conteo.set(0);
   }
 
   crearSala(esPrivada:boolean = false){
@@ -45,6 +48,7 @@ export class SalaService {
       publica: !esPrivada,
       userID: this.usuarioService.nombre(),
     }
+    this.conteo.set(0);
     this.serverService.server.emitWithAck('crearSala',args).then(res => {
       this.desestructurarSala(res.sala);
       this.numeroJugador.set(1);
@@ -57,6 +61,7 @@ export class SalaService {
       roomID: id,
       userID: this.usuarioService.nombre(),
     }
+    this.conteo.set(0);
     this.serverService.server.emitWithAck('unirseASala',args).then(res =>{
       console.log('Resultado de unión a sala',res);
       this.numeroJugador.set(2);
@@ -66,22 +71,42 @@ export class SalaService {
   /*
     PENDIENTES POR IMPLEMENTAR
     - Lógica del tiempo
-    - Mostrar las imágenes
-    - Que no escriba más que el número de imagenes mostradas
+    - Si escribe una respuesta bloquear el input para que no escriba mas
     - Cuando gane el jugador aumentar su puntaje
   */
-  jugar(respuestaJugador:string){
-    if(respuestaJugador === this.name()){
+  jugar(){
+    let numeroRespuestas = 0;
+    for (let i = 0; i < this.name().length; i++) {
+      if(this.respuestasJugador[i] !== this.name()[i]){
+        this.respuesta.set('INCORRECTA');
+        break;
+      }
+      numeroRespuestas = i;
+    }
+    console.log('numero respuestas ',numeroRespuestas)
+    if(numeroRespuestas === (this.name().length -1)){
       this.respuesta.set('CORRECTA');
     }
-    else{
-      this.respuesta.set('INCORRECTA');
-    }
-    console.log('Respuesta Jugador',respuestaJugador,' Estado de la respuesta: ',this.respuesta());
+    console.log("Estado de la respuesta",this.respuesta())
+    this.respuestasJugador = [];
     this.serverService.server.emit("jugar",{
       salaId: this.id(),
       jugador: this.numeroJugador(),
       status: this.respuesta(),
+      secuenciaRecordada: numeroRespuestas,
     })
+  }
+
+  recibirRespuesta(respuesta:string){
+    this.respuestasJugador.push(respuesta);
+    console.log('REspuestas del jugador', this.respuestasJugador);
+    console.log('cantidad de señas ',this.name().length)
+    console.log('Nimero de respuestas ingresadas por el usuario', this.conteo());
+    if((this.name().length -1) === this.conteo()){
+      this.conteo.set(0);
+      console.log('reseteo de contador ',this.conteo)
+      this.jugar()
+    }
+    this.conteo.set(this.conteo() +1);
   }
 }

@@ -10,8 +10,8 @@ export interface SalaBackend{
     roomID: number;
     //estado: EstadoJuego;
     status: EstadoJuego;
-    imageURL: string;
-    signal: string;
+    imageURL: string[];
+    signal: string[];
     //tablero: Tablero;
 }
 export type statusRespuesta = 'INCORRECTA' | 'CORRECTA' | 'TIEMPO_AGOTADO' | 'ESPERANDO_RESPUESTA'
