@@ -66,7 +66,8 @@ export class SalaService {
   /*
     PENDIENTES POR IMPLEMENTAR
     - Lógica del tiempo
-    - Si escribe una respuesta bloquear el input para que no escriba mas
+    - Mostrar las imágenes
+    - Que no escriba más que el número de imagenes mostradas
     - Cuando gane el jugador aumentar su puntaje
   */
   jugar(respuestaJugador:string){
